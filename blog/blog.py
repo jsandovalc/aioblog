@@ -19,7 +19,7 @@ def root(request):
     posts = yield from post.find(limit=10)
     for post in posts:
         body += post['body']
-    return {}
+    return {'posts': posts}
 
 app = web.Application()
 aiohttp_jinja2.setup(

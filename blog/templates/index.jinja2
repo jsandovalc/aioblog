@@ -5,18 +5,20 @@
   </head>
   <body>
     <section id="content">
+      {% for post in posts %}
       <div class="post-block">
         <div class="article-header">
-          <div class="article-title">¡Hola mundo!</div>
+          <div class="article-title">{{ post['title'] }}</div>
           <p>
             <span class="date">¡Fecha!</span>
           </p>
         </div>
 
         <div class="entry-content">
-          ¡El cuerpo!
+          {{ post['body'] }}
         </div>
       </div>
+      {% endfor %}
     </section>
   </body>
 </html>
