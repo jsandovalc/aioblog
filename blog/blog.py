@@ -16,9 +16,10 @@ def root(request):
     blog = mongo.blog
     post = blog.post
     body = ''
-    posts = yield from post.find(limit=10)
+    f = asyncio_mongo.filter.sort(asyncio_mongo.filter.DESCENDING("date"))
+    posts = yield from post.find(limit=5, filter=f)
     for post in posts:
-        body += post['body']
+        post['date'] = post['date'].strftime("%a %d %B %Y")
     return {'posts': posts}
 
 app = web.Application()
