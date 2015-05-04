@@ -87,7 +87,7 @@ def tag(request):
 def css(request):
     return web.Response(
         headers={'content-type': 'text/css'},
-        text=open('./blog/templates/main.css').read())
+        text=open('./blog/templates/main.css', 'rb').read().decode('utf-8'))
 
 
 app = web.Application()

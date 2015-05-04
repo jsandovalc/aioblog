@@ -85,6 +85,28 @@ blockquote{
 	border-radius:.25em
 }
 
+blockquote:before{
+	position:relative;
+	width:0;
+	height:0;
+	top:-0.25em;
+	left:-0.75em;
+	content:"“";
+	font-size:3em;
+	float:left
+}
+
+blockquote:after{
+	width:0;
+	height:0;
+	content:"”";
+	font-size:3em;
+	float:right;
+	position:relative;
+	top:-1em;
+	left:-0.125em
+}
+
 code,pre{
 	border:1px solid #D6D3D7;
 	border-radius:6px;
