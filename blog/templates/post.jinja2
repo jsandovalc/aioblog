@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Blog :: index</title>
+    <link type="text/css"
+          href="{{ cssfile }}" rel="stylesheet">
+  </head>
+
+  <body>
+    <div class="container">
+      <section id="content">
+        <div class="post-block">
+          <div class="article-header">
+            <div class="article-title">{{ post.title }}</div>
+            <p>
+              <span class="date">{{ post.date }}</span>
+            </p>
+          </div>
+
+          <div class="entry-content">
+            {{ post['body'] }}
+          </div>
+        </div>
+      </section>
+    </div>
+  </body>
+</html>
