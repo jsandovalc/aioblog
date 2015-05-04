@@ -12,7 +12,8 @@
         {% for post in posts %}
         <div class="post-block">
           <div class="article-header">
-            <div class="article-title">{{ post.title }}</div>
+            <div class="article-title"><a href="{{ post.url }}" rel="bookmark">{{
+            post.title }}</a></div>
             <p>
               <span class="date">{{ post.date }}</span>
             </p>
@@ -25,5 +26,14 @@
         {% endfor %}
       </section>
     </div>
+    <ul class="pager">
+      <li class="previous disabled">
+        <a href="http://localhost:8080/{{ newer }}">&laquo; nuevos</a>
+      </li>
+      <li class="next">
+        <a href="http://localhost:8080/{{ older }}">anteriores
+        &raquo;</a>
+      </li>
+    </ul>
   </body>
 </html>

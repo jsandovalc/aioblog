@@ -8,19 +8,35 @@ import aiohttp_jinja2
 from aiohttp import web
 
 db_host, db_port = 'localhost', 27017
+host, port = 'localhost', 8080
 
 @aiohttp_jinja2.template('index.jinja2')
 @asyncio.coroutine
 def root(request):
+    try:
+        page = int(request.match_info['page'])
+        older = 'index{}.html'.format(page+1)
+        newer = 'index{}.html'.format(page-1)
+    except KeyError:
+        page = 1
+        newer = ''
+        older = 'index2.html'
     mongo = yield from asyncio_mongo.Connection.create(db_host, db_port)
     blog = mongo.blog
     post = blog.post
     body = ''
     f = asyncio_mongo.filter.sort(asyncio_mongo.filter.DESCENDING("date"))
-    posts = yield from post.find(limit=5, filter=f)
+    posts = yield from post.find(skip=5*(page-1), limit=5, filter=f)
+    if not posts:
+        raise web.HTTPNotFound(reason='no older posts')
     for post in posts:
+        post['url'] = 'http://{}:{}/post/{}'.format(host, port,
+                                                    str(post['_id']))
         post['date'] = post['date'].strftime("%a %d %B %Y")
-    return {'posts': posts, 'cssfile': 'http://localhost:8080/main.css'}
+    return {'posts': posts,
+            'newer': newer,
+            'older': older,
+            'cssfile': 'http://{}:{}/main.css'.format(host, port)}
 
 
 @aiohttp_jinja2.template('post.jinja2')
@@ -35,7 +51,8 @@ def post(request):
     except asyncio_mongo._bson.errors.InvalidId:
         raise web.HTTPNotFound(reason='Id not found')
     post['date'] = post['date'].strftime("%a %d %B %Y")
-    return {'post': post, 'cssfile': 'http://localhost:8080/main.css'}
+    post['url'] = 'http://{}:{}/post/{}'.format(host, port, str(post['_id']))
+    return {'post': post, 'cssfile': 'http://{}:{}/main.css'.format(host, port)}
 
 
 @asyncio.coroutine
@@ -51,6 +68,7 @@ aiohttp_jinja2.setup(
     loader=aiohttp_jinja2.jinja2.FileSystemLoader('./blog/templates'))
 
 app.router.add_route('GET', '/', root)
+app.router.add_route('GET', '/index{page}.html', root)
 app.router.add_route('GET', '/main.css', css)
 app.router.add_route('GET', '/post/{postid}', post)
 
