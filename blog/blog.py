@@ -33,6 +33,7 @@ def root(request):
         post['url'] = 'http://{}:{}/post/{}'.format(host, port,
                                                     str(post['_id']))
         post['date'] = post['date'].strftime("%a %d %B %Y")
+        post['tags'] = post['tags'] if 'tags' in post else []
     return {'posts': posts,
             'newer': newer,
             'older': older,

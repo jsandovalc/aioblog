@@ -16,6 +16,14 @@
             post.title }}</a></div>
             <p>
               <span class="date">{{ post.date }}</span>
+              {% if post.tags %}
+              -
+              <span class="tags">
+                {% for tag in post.tags %}
+                {{ tag }},
+                {% endfor %}
+              </span>
+              {% endif %}
             </p>
           </div>
 
