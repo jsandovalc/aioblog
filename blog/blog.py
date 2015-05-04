@@ -1,14 +1,14 @@
-# -*- coding: utf-8 -*-
-
 import asyncio
 
 import asyncio_mongo
 import aiohttp_jinja2
 
+import config
+
 from aiohttp import web
 
-db_host, db_port = 'localhost', 27017
-host, port = 'localhost', 8080
+db_host, db_port = config.DBHOST, config.DBPORT
+host, port = config.HOST, config.PORT
 
 @aiohttp_jinja2.template('index.jinja2')
 @asyncio.coroutine
@@ -22,7 +22,7 @@ def root(request):
         newer = ''
         older = 'index2.html'
     mongo = yield from asyncio_mongo.Connection.create(db_host, db_port)
-    blog = mongo.blog
+    blog = mongo[config.DATABASE]
     post = blog.post
     body = ''
     f = asyncio_mongo.filter.sort(asyncio_mongo.filter.DESCENDING("date"))
@@ -36,6 +36,8 @@ def root(request):
     return {'posts': posts,
             'newer': newer,
             'older': older,
+            'host': host,
+            'port': port,
             'cssfile': 'http://{}:{}/main.css'.format(host, port)}
 
 
@@ -43,7 +45,7 @@ def root(request):
 @asyncio.coroutine
 def post(request):
     mongo = yield from asyncio_mongo.Connection.create(db_host, db_port)
-    blog = mongo.blog
+    blog = mongo[config.DATABASE]
     post = blog.post
     try:
         post = (yield from post.find_one(
@@ -65,7 +67,7 @@ def css(request):
 app = web.Application()
 aiohttp_jinja2.setup(
     app,
-    loader=aiohttp_jinja2.jinja2.FileSystemLoader('./blog/templates'))
+    loader=aiohttp_jinja2.jinja2.FileSystemLoader(config.TEMPLATESPATH))
 
 app.router.add_route('GET', '/', root)
 app.router.add_route('GET', '/index{page}.html', root)
@@ -75,8 +77,8 @@ app.router.add_route('GET', '/post/{postid}', post)
 
 if __name__ == '__main__':
     loop = asyncio.get_event_loop()
-    ip = '0.0.0.0'
-    port = 8080
+    ip = config.SERVE
+    port = config.PORT
     f = loop.create_server(app.make_handler(), ip, port)
     srv = loop.run_until_complete(f)
     print('serving on', ip, port)

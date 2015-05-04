@@ -25,15 +25,16 @@
         </div>
         {% endfor %}
       </section>
+      <ul class="pager">
+        <li class="previous disabled">
+          <a href="http://{{ host }}:{{ port }}/{{ newer }}">&laquo; nuevos</a>
+        </li>
+        <li class="next">
+          <a href="http://{{ host }}:{{ port }}/{{ older }}">anteriores
+            &raquo;</a>
+        </li>
+      </ul>
+
     </div>
-    <ul class="pager">
-      <li class="previous disabled">
-        <a href="http://localhost:8080/{{ newer }}">&laquo; nuevos</a>
-      </li>
-      <li class="next">
-        <a href="http://localhost:8080/{{ older }}">anteriores
-        &raquo;</a>
-      </li>
-    </ul>
   </body>
 </html>
