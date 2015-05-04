@@ -20,13 +20,39 @@ def root(request):
     posts = yield from post.find(limit=5, filter=f)
     for post in posts:
         post['date'] = post['date'].strftime("%a %d %B %Y")
-    return {'posts': posts}
+    return {'posts': posts, 'cssfile': 'http://localhost:8080/main.css'}
+
+
+@aiohttp_jinja2.template('post.jinja2')
+@asyncio.coroutine
+def post(request):
+    mongo = yield from asyncio_mongo.Connection.create(db_host, db_port)
+    blog = mongo.blog
+    post = blog.post
+    try:
+        post = (yield from post.find_one(
+            {'_id': asyncio_mongo.bson.ObjectId(request.match_info['postid'])}))
+    except asyncio_mongo._bson.errors.InvalidId:
+        raise web.HTTPNotFound(reason='Id not found')
+    post['date'] = post['date'].strftime("%a %d %B %Y")
+    return {'post': post, 'cssfile': 'http://localhost:8080/main.css'}
+
+
+@asyncio.coroutine
+def css(request):
+    return web.Response(
+        headers={'content-type': 'text/css'},
+        text=open('./blog/templates/main.css').read())
+
 
 app = web.Application()
 aiohttp_jinja2.setup(
     app,
     loader=aiohttp_jinja2.jinja2.FileSystemLoader('./blog/templates'))
+
 app.router.add_route('GET', '/', root)
+app.router.add_route('GET', '/main.css', css)
+app.router.add_route('GET', '/post/{postid}', post)
 
 
 if __name__ == '__main__':
