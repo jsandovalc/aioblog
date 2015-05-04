@@ -58,6 +58,31 @@ def post(request):
     return {'post': post, 'cssfile': 'http://{}:{}/main.css'.format(host, port)}
 
 
+@aiohttp_jinja2.template('tag.jinja2')
+@asyncio.coroutine
+def tag(request):
+    try:
+        tag = request.match_info['name']
+    except KeyError:
+        raise web.HTTPNotFound(reason='Tag not included')
+    mongo = yield from asyncio_mongo.Connection.create(db_host, db_port)
+    blog = mongo[config.DATABASE]
+    post = blog.post
+    body = ''
+    f = asyncio_mongo.filter.sort(asyncio_mongo.filter.DESCENDING("date"))
+    posts = yield from post.find({'tags': tag}, filter=f)
+    if not posts:
+        raise web.HTTPNotFound(reason='Posts not found for tag')
+    for post in posts:
+        post['url'] = 'http://{}:{}/post/{}'.format(host, port,
+                                                    str(post['_id']))
+        post['date'] = post['date'].strftime("%a %d %B %Y")
+        post['tags'] = post['tags'] if 'tags' in post else []
+    return {'posts': posts,
+            'host': host,
+            'port': port,
+            'cssfile': 'http://{}:{}/main.css'.format(host, port)}
+
 @asyncio.coroutine
 def css(request):
     return web.Response(
@@ -74,6 +99,7 @@ app.router.add_route('GET', '/', root)
 app.router.add_route('GET', '/index{page}.html', root)
 app.router.add_route('GET', '/main.css', css)
 app.router.add_route('GET', '/post/{postid}', post)
+app.router.add_route('GET', '/tag/{name}.html', tag)
 
 
 if __name__ == '__main__':

@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  {% block head %}
+    <title>Blog :: {% block title %}index{% endblock%}</title>
+    <link type="text/css"
+          href="{{ cssfile }}" rel="stylesheet">
+  {% endblock %}
+  </head>
+
+  <body>
+    <div class="container">
+      <section id="content">
+      {% block content %}{% endblock %}
+      </section>
+      {% block pager %}
+      <ul class="pager">
+        <li class="previous disabled">
+          <a href="http://{{ host }}:{{ port }}/{{ newer }}">&laquo; nuevos</a>
+        </li>
+        <li class="next">
+          <a href="http://{{ host }}:{{ port }}/{{ older }}">anteriores
+            &raquo;</a>
+        </li>
+      </ul>
+      {% endblock %}
+    </div>
+  </body>
+</html>
