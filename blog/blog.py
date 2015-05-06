@@ -10,6 +10,8 @@ from aiohttp import web
 db_host, db_port = config.DBHOST, config.DBPORT
 host, port = config.HOST, config.PORT
 
+static = config.STATIC
+
 @aiohttp_jinja2.template('index.jinja2')
 @asyncio.coroutine
 def root(request):
@@ -39,7 +41,7 @@ def root(request):
             'older': older,
             'host': host,
             'port': port,
-            'cssfile': 'http://{}:{}/main.css'.format(host, port)}
+            'cssfile': 'http://{}:{}/{}css/main.css'.format(host, port, static)}
 
 
 @aiohttp_jinja2.template('post.jinja2')
@@ -55,7 +57,9 @@ def post(request):
         raise web.HTTPNotFound(reason='Id not found')
     post['date'] = post['date'].strftime("%a %d %B %Y")
     post['url'] = 'http://{}:{}/post/{}'.format(host, port, str(post['_id']))
-    return {'post': post, 'cssfile': 'http://{}:{}/main.css'.format(host, port)}
+    return {'post': post, 'cssfile': 'http://{}:{}/{}css/main.css'.format(host,
+                                                                      port,
+                                                                      static)}
 
 
 @aiohttp_jinja2.template('tag.jinja2')
@@ -81,14 +85,7 @@ def tag(request):
     return {'posts': posts,
             'host': host,
             'port': port,
-            'cssfile': 'http://{}:{}/main.css'.format(host, port)}
-
-@asyncio.coroutine
-def css(request):
-    return web.Response(
-        headers={'content-type': 'text/css'},
-        text=open('./blog/templates/main.css', 'rb').read().decode('utf-8'))
-
+            'cssfile': 'http://{}:{}/{}css/main.css'.format(host, port, static)}
 
 app = web.Application()
 aiohttp_jinja2.setup(
@@ -97,7 +94,6 @@ aiohttp_jinja2.setup(
 
 app.router.add_route('GET', '/', root)
 app.router.add_route('GET', '/index{page}.html', root)
-app.router.add_route('GET', '/main.css', css)
 app.router.add_route('GET', '/post/{postid}', post)
 app.router.add_route('GET', '/tag/{name}.html', tag)
 

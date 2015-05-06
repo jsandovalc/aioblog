@@ -9,3 +9,6 @@ DBPORT = 27017
 
 # templates
 TEMPLATESPATH = './blog/templates'
+
+# static
+STATIC = 'static/'
